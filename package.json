@@ -1,0 +1,32 @@
+{
+  "name": "koa_auth_jwt",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon ./src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yevheniimoskalenko/koa.js.git"
+  },
+  "keywords": [],
+  "author": "yevhenii moskalenko",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yevheniimoskalenko/koa.js/issues"
+  },
+  "homepage": "https://github.com/yevheniimoskalenko/koa.js#readme",
+  "dependencies": {
+    "crypto": "^1.0.1",
+    "dotenv": "^8.2.0",
+    "install": "^0.13.0",
+    "jsonwebtoken": "^8.5.1",
+    "koa": "^2.13.0",
+    "koa-bodyparser": "^4.3.0",
+    "koa-logger": "^3.2.1",
+    "koa-router": "^9.4.0",
+    "mongoose": "^5.9.29",
+    "npm": "^6.14.7"
+  }
+}
