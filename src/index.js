@@ -57,7 +57,17 @@ router.post('/login',async (ctx, next)=>{
 })
 router.get('/verify', async (ctx, next)=>{
     const headers = ctx.headers.authorization
-    ctx.body = headers
+    const token = headers.replace("Bearer ", "")
+  
+    try{
+    if(token === ""){
+        ctx.body = 'token not found'
+    }
+        const obj = jwt.verify(token, process.env.secret)
+        ctx.body = {message: 'ok', payload : obj}
+        }catch(e){
+        ctx.body = e
+        }    
 })
 app.use(router.routes()); 
 const server = app.listen(3000);
