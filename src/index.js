@@ -3,9 +3,11 @@ const Koa = require('koa')
 const Router = require('koa-router')
 const jwt = require('jsonwebtoken')
 const bodyparser = require('koa-bodyparser')
-const bcrypt = require('bcrypt-nodejs') 
+const {compareSync, hashSync,genSaltSync} = require('bcrypt-nodejs') 
 const Person = require("./model/user.modul.js")
 require('dotenv').config()
+const axios = require('axios')
+const jwtMiddleware = require('koa-jwt')
 
 const app = new Koa();
 const router = new Router();
@@ -13,7 +15,7 @@ app.use(bodyparser());
 
 router.post('/create', async (ctx, next)=>{
     const {email, password} = ctx.request.body
-    const salt = bcrypt.genSaltSync(10)
+    const salt = genSaltSync(10)
     try{
         const candidat = await Person.findOne({email})
         
@@ -22,7 +24,7 @@ router.post('/create', async (ctx, next)=>{
         }else{
             const user = new Person({
                 email,
-                password : bcrypt.hashSync(password, salt)
+                password : hashSync(password, salt)
             })
             await user.save()
             ctx.body = "Користувач успішно створений";
@@ -32,7 +34,7 @@ router.post('/create', async (ctx, next)=>{
         ctx.body = err;
     }
 })
-router.post('/login',async (ctx, next)=>{
+router.post('/login', async (ctx, next)=>{
     const {email,password} = ctx.request.body
     try{
         const candidat = await Person.findOne({email})
@@ -40,11 +42,11 @@ router.post('/login',async (ctx, next)=>{
 
             ctx.body = 'Користувач не знайдений'
         }else{
-            const isPasswordCorrect = bcrypt.compareSync(password, candidat.password)
+            const isPasswordCorrect = compareSync(password, candidat.password)
             if(isPasswordCorrect){
                 const token = jwt.sign({
                     email:candidat.email,
-                },process.env.secret,{expiresIn: 60*24})
+                },process.env.secret,{expiresIn: 3600*24})
                 ctx.body = token
             }
             
@@ -55,10 +57,18 @@ router.post('/login',async (ctx, next)=>{
         ctx.body = err;
     }
 })
-router.get('/verify', async (ctx, next)=>{
+
+router.get('/post/:id',jwtMiddleware({secret: process.env.secret}), async(ctx, next )=>{
+    const {id} = ctx.params
+   await axios({
+        method: 'get',
+        url: `https://jsonplaceholder.typicode.com/posts/${id}`
+    }).then(result => {
+    ctx.body = result.data}).catch(e => console.log(e))
+})
+router.get('/verify', async (ctx)=>{
     const headers = ctx.headers.authorization
     const token = headers.replace("Bearer ", "")
-  
     try{
     if(token === ""){
         ctx.body = 'token not found'
